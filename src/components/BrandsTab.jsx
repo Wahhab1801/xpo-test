@@ -1,24 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { BrandsService } from "../lib/api";
 import BrandCard from "./BrandCard";
 import SearchBar from "./SearchBar";
 import { AddBrandModal, EditBrandModal } from "./AddBrandModal";
 import { useLocation, useSearchParams } from "react-router-dom";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 function BrandsTab() {
   const [searchParams] = useSearchParams();
@@ -28,13 +15,19 @@ function BrandsTab() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState(null);
+  const [sortConfig, setSortConfig] = useState({
+    key: "brand_name",
+    direction: "asc",
+  });
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  // Sorting options
+  const sortOptions = [
+    { key: "brand_name", label: "Name" },
+    { key: "location", label: "Location" },
+    { key: "hall", label: "Hall" },
+    { key: "stand_number", label: "Stand Number" },
+    { key: "product_tag", label: "Product Tags" },
+  ];
 
   useEffect(() => {
     const params = {
@@ -67,16 +60,39 @@ function BrandsTab() {
     }
   };
 
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
+  const handleSort = (key) => {
+    setSortConfig((prevConfig) => ({
+      key,
+      direction:
+        prevConfig.key === key && prevConfig.direction === "asc"
+          ? "desc"
+          : "asc",
+    }));
+  };
 
-    if (active.id !== over.id) {
-      setBrands((items) => {
-        const oldIndex = items.findIndex((item) => item.BrandID === active.id);
-        const newIndex = items.findIndex((item) => item.BrandID === over.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
+  const getSortedBrands = () => {
+    if (!sortConfig.key) return brands;
+
+    return [...brands].sort((a, b) => {
+      let aValue = a[sortConfig.key] || "";
+      let bValue = b[sortConfig.key] || "";
+
+      // Handle numeric values
+      if (sortConfig.key === "stand_number") {
+        aValue = aValue ? parseInt(aValue.replace(/[^0-9]/g, ""), 10) || 0 : 0;
+        bValue = bValue ? parseInt(bValue.replace(/[^0-9]/g, ""), 10) || 0 : 0;
+      } else {
+        // Convert to lowercase strings for text comparison
+        aValue = String(aValue).toLowerCase();
+        bValue = String(bValue).toLowerCase();
+      }
+
+      if (sortConfig.direction === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
   };
 
   const handleSearch = async (params) => {
@@ -128,6 +144,8 @@ function BrandsTab() {
     );
   }
 
+  const sortedBrands = getSortedBrands();
+
   return (
     <>
       <AddBrandModal
@@ -157,32 +175,45 @@ function BrandsTab() {
           </button>
         </div>
 
-        <SearchBar onSearch={handleSearch} />
+        <div className="mb-6">
+          <SearchBar onSearch={handleSearch} />
 
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={brands.map((b) => b.BrandID)}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {brands.map((brand) => (
-                <BrandCard
-                  key={brand.BrandID}
-                  brand={brand}
-                  isAdmin
-                  onEdit={() => {
-                    setSelectedBrand(brand);
-                    setShowEditModal(true);
-                  }}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {sortOptions.map((option) => (
+              <button
+                key={option.key}
+                onClick={() => handleSort(option.key)}
+                className={`flex items-center gap-1 px-4 py-2 rounded-md border transition-colors ${
+                  sortConfig.key === option.key
+                    ? "bg-blue-50 border-blue-200 text-blue-700"
+                    : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                {option.label}
+                {sortConfig.key === option.key &&
+                  (sortConfig.direction === "asc" ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  ))}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {sortedBrands.map((brand) => (
+            <BrandCard
+              key={brand.BrandID}
+              brand={brand}
+              isAdmin
+              onEdit={() => {
+                setSelectedBrand(brand);
+                setShowEditModal(true);
+              }}
+            />
+          ))}
+        </div>
       </div>
     </>
   );

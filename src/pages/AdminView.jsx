@@ -35,7 +35,6 @@ function AdminView() {
         </div>
 
         {/* Heading */}
-        <h1 className="text-2xl font-bold text-center">Brand Management</h1>
       </div>
 
       {/* Tab Content */}
