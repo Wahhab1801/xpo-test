@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { cn } from "../lib/utils";
+import { ExhibitorsService } from "../lib/api";
 
 // Common Input Component
 const FormInput = ({ label, error, className, ...props }) => (
@@ -41,6 +42,43 @@ const FormTextArea = ({ label, error, className, ...props }) => (
   </div>
 );
 
+// Common Select Component
+const FormSelect = ({
+  label,
+  error,
+  options,
+  className,
+  onSelect,
+  ...props
+}) => (
+  <div className={className}>
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      {label}
+      {props.required && <span className="text-red-500 ml-1">*</span>}
+    </label>
+    <select
+      className={cn(
+        "w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
+        error ? "border-red-500" : "border-gray-300",
+        props.disabled && "bg-gray-100"
+      )}
+      {...props}
+    >
+      <option value="">Select {label}</option>
+      {options.map((option) => (
+        <option
+          key={option.value}
+          value={option.value}
+          onClick={() => onSelect(option.value)}
+        >
+          {option.label}
+        </option>
+      ))}
+    </select>
+    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+  </div>
+);
+
 // Add Brand Modal Component
 export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -56,6 +94,34 @@ export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [exhibitors, setExhibitors] = useState([]);
+  const [loadingExhibitors, setLoadingExhibitors] = useState(false);
+
+  useEffect(() => {
+    const fetchExhibitors = async () => {
+      // if (isOpen) {
+      try {
+        setLoadingExhibitors(true);
+        const data = await ExhibitorsService.getExhibitors();
+        const formattedExhibitors = data?.data?.map((exhibitor) => ({
+          value: exhibitor.exhibitor_id,
+          label: exhibitor.name || exhibitor.company_name,
+        }));
+        setExhibitors(formattedExhibitors);
+      } catch (error) {
+        console.error("Failed to fetch exhibitors:", error);
+        setErrors((prev) => ({
+          ...prev,
+          exhibitor: "Failed to load exhibitors",
+        }));
+      } finally {
+        setLoadingExhibitors(false);
+      }
+      //
+    };
+
+    fetchExhibitors();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -164,6 +230,19 @@ export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
             placeholder="Enter tags separated by commas"
           />
 
+          <FormSelect
+            label="Exhibitor"
+            required
+            value={formData.exhibitor_id}
+            onChange={(e) => {
+              setFormData({ ...formData, exhibitor_id: e.target.value });
+            }}
+            error={errors.exhibitor_id}
+            options={exhibitors}
+            // options={["Select Exhibitor", "Exhibitor 1", "Exhibitor 2"]}
+            disabled={loadingExhibitors}
+          />
+
           {errors.general && (
             <p className="text-sm text-red-500 bg-red-50 p-3 rounded-lg">
               {errors.general}
@@ -204,8 +283,10 @@ export const EditBrandModal = ({ isOpen, onClose, onSubmit, brand }) => {
     hall: "",
     stand_number: "",
     product_tag: "",
-    exhibitor_id: ""
+    exhibitor_id: "",
   });
+
+  // const [selectedExhibitor, setSelectedExhibitor] = useState(null);
 
   // Update formData whenever brand prop changes
   useEffect(() => {
@@ -218,13 +299,46 @@ export const EditBrandModal = ({ isOpen, onClose, onSubmit, brand }) => {
         hall: brand.hall || "",
         stand_number: brand.stand_number || "",
         product_tag: brand.product_tag || "",
-        exhibitor_id: brand.exhibitor_id || ""
+        exhibitor_id: brand.exhibitor_id || "",
       });
+      // if (exhibitors.length > 0) {
+      //   setSelectedExhibitor(
+      //     exhibitors.find((exhibitor) => exhibitor.value === brand.exhibitor_id)
+      //   );
+      // }
     }
   }, [brand]);
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [exhibitors, setExhibitors] = useState([]);
+  const [loadingExhibitors, setLoadingExhibitors] = useState(false);
+
+  useEffect(() => {
+    const fetchExhibitors = async () => {
+      // if (isOpen) {
+      try {
+        setLoadingExhibitors(true);
+        const data = await ExhibitorsService.getExhibitors();
+        const formattedExhibitors = data?.data?.map((exhibitor) => ({
+          value: exhibitor.ExhibitorID,
+          label: exhibitor.name || exhibitor.company_name,
+        }));
+        setExhibitors(formattedExhibitors);
+      } catch (error) {
+        console.error("Failed to fetch exhibitors:", error);
+        setErrors((prev) => ({
+          ...prev,
+          exhibitor: "Failed to load exhibitors",
+        }));
+      } finally {
+        setLoadingExhibitors(false);
+      }
+      //
+    };
+
+    fetchExhibitors();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -327,6 +441,20 @@ export const EditBrandModal = ({ isOpen, onClose, onSubmit, brand }) => {
             }
             error={errors.product_tag}
             placeholder="Enter tags separated by commas"
+          />
+
+          <FormSelect
+            label="Exhibitor"
+            required
+            value={formData.exhibitor_id}
+            onChange={(e) => {
+              setFormData({ ...formData, exhibitor_id: e.target.value });
+              // setSelectedExhibitor();
+            }}
+            onSelect={(value) => {}}
+            error={errors.exhibitor_id}
+            options={exhibitors}
+            disabled={loadingExhibitors}
           />
 
           {errors.general && (

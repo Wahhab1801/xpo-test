@@ -16,7 +16,6 @@ function ExhibitorsTab() {
     try {
       setLoading(true);
       const data = await ExhibitorsService.getExhibitors();
-      console.log("getExhibitors", data);
       setExhibitors(data?.data || []);
     } catch (error) {
       console.error("Failed to fetch exhibitors:", error);
