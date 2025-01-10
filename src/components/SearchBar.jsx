@@ -12,8 +12,6 @@ function SearchBar({ onSearch }) {
     hall: searchParams.get("hall") || "",
   });
 
-  console.log("Search params:", searchParams.toString());
-
   // Update form when URL params change
   useEffect(() => {
     setFormValues({
@@ -52,8 +50,8 @@ function SearchBar({ onSearch }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto mb-8">
-      <div className="bg-white p-4 rounded-lg shadow-md space-y-4">
+    <form onSubmit={handleSubmit} className="w-full max-w-5xl mx-auto mb-8">
+      <div className="bg-white flex justify-between items-center p-4 rounded-lg shadow-md space-x-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <input
             type="text"
@@ -95,7 +93,17 @@ function SearchBar({ onSearch }) {
             className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-4">
+          {searchParams?.toString() && (
+            <button
+              type="button"
+              aria-label="Click to reset search"
+              onClick={handleClear}
+              className="p-2 h-full rounded-full text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 transition-colors flex items-center gap-2"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
           <button
             type="submit"
             className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -103,16 +111,6 @@ function SearchBar({ onSearch }) {
             <Search className="w-4 h-4" />
             Search
           </button>
-          {searchParams?.toString() && (
-            <button
-              type="button"
-              onClick={handleClear}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 bg-gray-100 rounded hover:bg-gray-200 transition-colors flex items-center gap-2"
-            >
-              <X className="w-4 h-4" />
-              Clear
-            </button>
-          )}
         </div>
       </div>
     </form>

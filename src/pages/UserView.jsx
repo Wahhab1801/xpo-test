@@ -1,49 +1,49 @@
 import React from "react";
-import { getBrands, searchBrands } from "../lib/api";
+import { BrandsService } from "../lib/api";
 import BrandCard from "../components/BrandCard";
 import SearchBar from "../components/SearchBar";
+import { toast } from "react-hot-toast";
 
 function UserView() {
   const [brands, setBrands] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    const fetchBrands = async () => {
-      try {
-        const data = await getBrands();
-        setBrands(data);
-      } catch (error) {
-        console.error("Failed to fetch brands:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchBrands = async () => {
+    try {
+      const data = await BrandsService.getBrands();
+      setBrands(data);
+    } catch (error) {
+      console.error("Failed to fetch brands:", error);
+      toast.error(error.message || "Failed to load brands");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  React.useEffect(() => {
     fetchBrands();
   }, []);
 
   const handleSearch = async (params) => {
-    setLoading(true);
     try {
-      const filteredBrands = await searchBrands(params);
+      setLoading(true);
+      const filteredBrands = await BrandsService.searchBrands(params);
       setBrands(filteredBrands);
     } catch (error) {
       console.error("Failed to search brands:", error);
+      toast.error(error.message || "Search failed");
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    console.log("Loading...");
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
-
-  console.log("Loaded:", brands);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

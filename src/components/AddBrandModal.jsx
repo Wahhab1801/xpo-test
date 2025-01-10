@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, Loader2 } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { X, Loader2 } from "lucide-react";
 import { cn } from "../lib/utils";
 
 // Common Input Component
@@ -44,16 +44,16 @@ const FormTextArea = ({ label, error, className, ...props }) => (
 // Add Brand Modal Component
 export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
-    brand_name: '',
-    image_url: '',
-    description: '',
-    location: '',
-    hall: '',
-    stand_number: '',
-    product_tag: '',
-    exhibitor_id: ''
+    brand_name: "",
+    image_url: "",
+    description: "",
+    location: "",
+    hall: "",
+    stand_number: "",
+    product_tag: "",
+    exhibitor_id: "",
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -93,16 +93,20 @@ export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
               label="Brand Name"
               required
               value={formData.brand_name}
-              onChange={(e) => setFormData({ ...formData, brand_name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, brand_name: e.target.value })
+              }
               error={errors.brand_name}
               placeholder="Enter brand name"
             />
-            
+
             <FormInput
               label="Image URL"
               type="url"
               value={formData.image_url}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, image_url: e.target.value })
+              }
               error={errors.image_url}
               placeholder="https://example.com/image.jpg"
             />
@@ -111,7 +115,9 @@ export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
           <FormTextArea
             label="Description"
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
             error={errors.description}
             placeholder="Enter brand description"
           />
@@ -120,7 +126,9 @@ export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
             <FormInput
               label="Location"
               value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, location: e.target.value })
+              }
               error={errors.location}
               placeholder="e.g., London"
             />
@@ -128,7 +136,9 @@ export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
             <FormInput
               label="Hall"
               value={formData.hall}
-              onChange={(e) => setFormData({ ...formData, hall: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, hall: e.target.value })
+              }
               error={errors.hall}
               placeholder="e.g., A"
             />
@@ -136,7 +146,9 @@ export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
             <FormInput
               label="Stand Number"
               value={formData.stand_number}
-              onChange={(e) => setFormData({ ...formData, stand_number: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, stand_number: e.target.value })
+              }
               error={errors.stand_number}
               placeholder="e.g., A1"
             />
@@ -145,7 +157,9 @@ export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
           <FormInput
             label="Product Tags"
             value={formData.product_tag}
-            onChange={(e) => setFormData({ ...formData, product_tag: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, product_tag: e.target.value })
+            }
             error={errors.product_tag}
             placeholder="Enter tags separated by commas"
           />
@@ -171,7 +185,7 @@ export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
               className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center"
             >
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {loading ? 'Adding...' : 'Add Brand'}
+              {loading ? "Adding..." : "Add Brand"}
             </button>
           </div>
         </form>
@@ -183,16 +197,32 @@ export const AddBrandModal = ({ isOpen, onClose, onSubmit }) => {
 // Edit Brand Modal Component
 export const EditBrandModal = ({ isOpen, onClose, onSubmit, brand }) => {
   const [formData, setFormData] = useState({
-    brand_name: brand?.brand_name || '',
-    image_url: brand?.image_url || '',
-    description: brand?.description || '',
-    location: brand?.location || '',
-    hall: brand?.hall || '',
-    stand_number: brand?.stand_number || '',
-    product_tag: brand?.product_tag || '',
-    exhibitor_id: brand?.exhibitor_id || ''
+    brand_name: "",
+    image_url: "",
+    description: "",
+    location: "",
+    hall: "",
+    stand_number: "",
+    product_tag: "",
+    exhibitor_id: ""
   });
-  
+
+  // Update formData whenever brand prop changes
+  useEffect(() => {
+    if (brand) {
+      setFormData({
+        brand_name: brand.brand_name || "",
+        image_url: brand.image_url || "",
+        description: brand.description || "",
+        location: brand.location || "",
+        hall: brand.hall || "",
+        stand_number: brand.stand_number || "",
+        product_tag: brand.product_tag || "",
+        exhibitor_id: brand.exhibitor_id || ""
+      });
+    }
+  }, [brand]);
+
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -217,7 +247,9 @@ export const EditBrandModal = ({ isOpen, onClose, onSubmit, brand }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white px-6 py-4 border-b flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">Edit {brand.brand_name}</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            Edit {brand.brand_name}
+          </h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -232,15 +264,19 @@ export const EditBrandModal = ({ isOpen, onClose, onSubmit, brand }) => {
               label="Brand Name"
               required
               value={formData.brand_name}
-              onChange={(e) => setFormData({ ...formData, brand_name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, brand_name: e.target.value })
+              }
               error={errors.brand_name}
             />
-            
+
             <FormInput
               label="Image URL"
               type="url"
               value={formData.image_url}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, image_url: e.target.value })
+              }
               error={errors.image_url}
             />
           </div>
@@ -248,7 +284,9 @@ export const EditBrandModal = ({ isOpen, onClose, onSubmit, brand }) => {
           <FormTextArea
             label="Description"
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
             error={errors.description}
           />
 
@@ -256,21 +294,27 @@ export const EditBrandModal = ({ isOpen, onClose, onSubmit, brand }) => {
             <FormInput
               label="Location"
               value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, location: e.target.value })
+              }
               error={errors.location}
             />
 
             <FormInput
               label="Hall"
               value={formData.hall}
-              onChange={(e) => setFormData({ ...formData, hall: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, hall: e.target.value })
+              }
               error={errors.hall}
             />
 
             <FormInput
               label="Stand Number"
               value={formData.stand_number}
-              onChange={(e) => setFormData({ ...formData, stand_number: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, stand_number: e.target.value })
+              }
               error={errors.stand_number}
             />
           </div>
@@ -278,7 +322,9 @@ export const EditBrandModal = ({ isOpen, onClose, onSubmit, brand }) => {
           <FormInput
             label="Product Tags"
             value={formData.product_tag}
-            onChange={(e) => setFormData({ ...formData, product_tag: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, product_tag: e.target.value })
+            }
             error={errors.product_tag}
             placeholder="Enter tags separated by commas"
           />
@@ -304,7 +350,7 @@ export const EditBrandModal = ({ isOpen, onClose, onSubmit, brand }) => {
               className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center"
             >
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>

@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import UserView from "./pages/UserView";
-import AdminView from "./pages/AdminView";
+import AdminViewV2 from "./pages/AdminView";
 
 function App() {
   return (
@@ -32,7 +32,7 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<UserView />} />
-            <Route path="/admin" element={<AdminView />} />
+            <Route path="/admin" element={<AdminViewV2 />} />
           </Routes>
         </main>
       </div>
